@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="co.newapp.MainActivity">
+
+    <co.newapp.RecyclerDateView
+        android:id="@+id/recyclerview"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"/>
+
+    <!--<co.newapp.WaterCleanChatView
+        android:id="@+id/water_chat_view"
+        android:layout_width="200dp"
+        android:layout_height="100dp"
+        android:background="#D8D8D8"/>-->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <EditText
+            android:id="@+id/time"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number"/>
+
+        <Button
+            android:id="@+id/convert"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="转换"/>
+
+        <EditText
+            android:id="@+id/date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:editable="false"/>
+
+    </LinearLayout>
+
+
+</RelativeLayout>
