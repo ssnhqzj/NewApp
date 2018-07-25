@@ -14,6 +14,7 @@ import android.graphics.Region;
 import android.graphics.drawable.GradientDrawable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -171,6 +172,12 @@ public class LineChartView extends View {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        if (getParent() != null && getParent() instanceof View) {
+            int parentWidth = ((View) getParent()).getMeasuredWidth();
+            int budgetValue = (parentWidth-2*sideLineLength)/(maxDotNum-1);
+            backgroundGridWidth = budgetValue>backgroundGridWidth?budgetValue:backgroundGridWidth;
+        }
+
         int mViewWidth = measureWidth(widthMeasureSpec);
         mViewHeight = measureHeight(heightMeasureSpec);
         setMeasuredDimension(mViewWidth, mViewHeight);
@@ -179,13 +186,6 @@ public class LineChartView extends View {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        if (getParent() != null && getParent() instanceof View) {
-            View parentView = (View) getParent();
-            int parentWidth = parentView.getMeasuredWidth();
-            int budgetValue = (parentWidth-2*sideLineLength)/(maxDotNum-1);
-            backgroundGridWidth = budgetValue>backgroundGridWidth?budgetValue:backgroundGridWidth;
-        }
-
         refreshXCoordinateList(getHorizontalGridNum());
         refreshAfterDataChanged();
         isSizeChanged = true;
@@ -231,6 +231,7 @@ public class LineChartView extends View {
     private int measureWidth(int measureSpec) {
         int horizontalGridNum = getHorizontalGridNum();
         int preferred = backgroundGridWidth * horizontalGridNum + sideLineLength * 2;
+        Log.e("qzj","measureWidth-----horizontalGridNum:"+horizontalGridNum+", backgroundGridWidthL"+backgroundGridWidth+",sideLineLength:"+sideLineLength+", preferred:"+preferred);
         return getMeasurement(measureSpec, preferred);
     }
 

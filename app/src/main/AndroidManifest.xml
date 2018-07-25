@@ -26,6 +26,7 @@
             android:theme="@style/FullTheme"
             android:windowSoftInputMode="adjustNothing"/>
         <activity android:name=".LineChartActivity" />
+        <activity android:name=".LineChartListActivity" />
     </application>
 
 </manifest>

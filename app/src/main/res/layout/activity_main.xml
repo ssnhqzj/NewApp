@@ -47,6 +47,12 @@
             android:layout_height="wrap_content"
             android:text="折线图"/>
 
+        <Button
+            android:id="@+id/line_chart_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="折线图列表"/>
+
     </LinearLayout>
 
 </ScrollView>

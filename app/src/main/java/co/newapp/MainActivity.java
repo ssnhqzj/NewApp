@@ -58,5 +58,12 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, LineChartActivity.class));
             }
         });
+
+        findViewById(R.id.line_chart_list).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(MainActivity.this, LineChartListActivity.class));
+            }
+        });
     }
 }
