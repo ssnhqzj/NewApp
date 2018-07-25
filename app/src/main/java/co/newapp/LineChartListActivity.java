@@ -61,7 +61,7 @@ public class LineChartListActivity extends AppCompatActivity {
 
         private void initLineView(LineChartView lineView,int pos) {
             ArrayList<String> test = new ArrayList<>();
-            for (int i = 0; i < 15; i++) {
+            for (int i = 0; i < 1; i++) {
                 test.add(String.format(Locale.getDefault(),"7月%d日"+pos,i+1));
             }
             lineView.setBottomTextList(test);
@@ -81,7 +81,7 @@ public class LineChartListActivity extends AppCompatActivity {
         private void randomSet(LineChartView lineView) {
             List<Float> dataList = new ArrayList<>();
             float random = (float) (Math.random() * 100 + 1);
-            for (int i = 0; i < 15; i++) {
+            for (int i = 0; i < 1; i++) {
                 dataList.add((float) (Math.random() * random));
             }
 

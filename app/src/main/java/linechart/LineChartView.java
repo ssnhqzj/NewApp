@@ -88,6 +88,7 @@ public class LineChartView extends View {
 
     // 单元格宽度
     private int backgroundGridWidth = MyUtils.dip2px(getContext(), 45);
+    private int parentWidth;
     private int showPopupType = SHOW_POPUPS_NONE;
     private Boolean drawDotLine = false;
     private int[] colorArray = {
@@ -173,7 +174,7 @@ public class LineChartView extends View {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         if (getParent() != null && getParent() instanceof View) {
-            int parentWidth = ((View) getParent()).getMeasuredWidth();
+            parentWidth = ((View) getParent()).getMeasuredWidth();
             int budgetValue = (parentWidth-2*sideLineLength)/(maxDotNum-1);
             backgroundGridWidth = budgetValue>backgroundGridWidth?budgetValue:backgroundGridWidth;
         }
@@ -231,7 +232,6 @@ public class LineChartView extends View {
     private int measureWidth(int measureSpec) {
         int horizontalGridNum = getHorizontalGridNum();
         int preferred = backgroundGridWidth * horizontalGridNum + sideLineLength * 2;
-        Log.e("qzj","measureWidth-----horizontalGridNum:"+horizontalGridNum+", backgroundGridWidthL"+backgroundGridWidth+",sideLineLength:"+sideLineLength+", preferred:"+preferred);
         return getMeasurement(measureSpec, preferred);
     }
 
@@ -298,7 +298,7 @@ public class LineChartView extends View {
             for (int i=0; i<limitList.size(); i++) {
                 float limitY = getYAxesOf(limitList.get(i).yValue, getVerticalGridNum());
                 limitPaint.setColor(limitList.get(i).color);
-                canvas.drawLine(0, limitY, getWidth(), limitY, limitPaint);
+                canvas.drawLine(0, limitY, parentWidth, limitY, limitPaint);
 
                 Rect rect = new Rect();
                 limitPaint.getTextBounds(limitList.get(i).desc, 0, limitList.get(i).desc.length(), rect);
