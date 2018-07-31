@@ -91,6 +91,9 @@ public class LineChartView extends View {
     private int parentWidth;
     private int showPopupType = SHOW_POPUPS_NONE;
     private Boolean drawDotLine = false;
+    // 是否适应最小limit值，若为true则X轴为limit的最小值
+    private Boolean fitMinLimit = false;
+
     private int[] colorArray = {
             Color.parseColor("#e74c3c"), Color.parseColor("#2980b9"), Color.parseColor("#1abc9c")
     };
@@ -401,6 +404,11 @@ public class LineChartView extends View {
             verticalGridNum = verticalGridNum<limitMaxValue?limitMaxValue:verticalGridNum;
         }
 
+        if (fitMinLimit && limitList != null && limitList.size()>0){
+            float minLimitValue = limitList.get(0).yValue;
+            verticalGridNum -= minLimitValue;
+        }
+
         return verticalGridNum;
     }
 
@@ -457,6 +465,7 @@ public class LineChartView extends View {
                     drawDotLists.add(new ArrayList<Dot>());
                 }
             }
+
             for (int k = 0; k < dataLists.size(); k++) {
                 int drawDotSize = drawDotLists.get(k).isEmpty() ? 0 : drawDotLists.get(k).size();
 
@@ -479,17 +488,24 @@ public class LineChartView extends View {
                 }
             }
         }
+
         removeCallbacks(animator);
         post(animator);
     }
 
     private float getYAxesOf(float value, int verticalGridNum) {
+        float y = verticalGridNum - value;
+        if (fitMinLimit && limitList != null && limitList.size()>0){
+            float minLimitValue = limitList.get(0).yValue;
+            y += minLimitValue;
+        }
+
         return topLineLength + ((mViewHeight
                 - topLineLength
                 - bottomTextHeight
                 - bottomTextTopMargin
                 - bottomLineLength
-                - bottomTextDescent) * (verticalGridNum - value) / (getVerticalGridNum()));
+                - bottomTextDescent) * y / (getVerticalGridNum()));
     }
 
     private void refreshTopLineLength() {
@@ -675,5 +691,9 @@ public class LineChartView extends View {
     // 保留小数位数
     public void setKeepDigits(int keepDigits) {
         this.keepDigits = keepDigits;
+    }
+
+    public void setFitMinLimit(Boolean fitMinLimit) {
+        this.fitMinLimit = fitMinLimit;
     }
 }

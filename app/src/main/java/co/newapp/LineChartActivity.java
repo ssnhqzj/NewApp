@@ -51,7 +51,7 @@ public class LineChartActivity extends AppCompatActivity {
         lineView.setShowPopup(LineChartView.SHOW_POPUPS_All);
 
         List<Limit> limits = new ArrayList<>();
-        limits.add(new Limit(0, "0次/分", 0xFFFF0000));
+        limits.add(new Limit(10, "10次/分", 0xFFFF0000));
         limits.add(new Limit(80, "60-100次/分", 0xFF00FF00));
         lineView.setLimitList(limits);
     }
