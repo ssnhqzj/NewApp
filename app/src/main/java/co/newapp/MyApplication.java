@@ -30,6 +30,8 @@ public class MyApplication extends Application implements ThemeUtils.switchColor
                 .setSkinStatusBarColorEnable(false)                     // 关闭状态栏换肤，默认打开[可选]
                 .setSkinWindowBackgroundEnable(false)                   // 关闭windowBackground换肤，默认打开[可选]
                 .loadSkin();
+
+        Utils.init(this);
     }
 
     @Override

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.CornerPathEffect;
 import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
@@ -38,6 +39,7 @@ public class LineChartView extends View {
     public static final int SHOW_POPUPS_NONE = 3;
     // pop底部三角高度
     private final int bottomTriangleHeight = 12;
+    private static final float LINE_SMOOTHNESS = 0.16f;
     // 最小pop宽度
     private final int minPopupWidth = MyUtils.dip2px(getContext(), 20);
     private final int popupTopPadding = MyUtils.dip2px(getContext(), 2);
@@ -51,6 +53,7 @@ public class LineChartView extends View {
     private final int BACKGROUND_LINE_COLOR = Color.parseColor("#EEEEEE");
     private final int BOTTOM_TEXT_COLOR = Color.parseColor("#333333");
     private final Point tmpPoint = new Point();
+    private final Paint linePaint;
 
     private boolean showBackGrid = false;
     public boolean showPopup = true;
@@ -93,6 +96,8 @@ public class LineChartView extends View {
     private Boolean drawDotLine = false;
     // 是否适应最小limit值，若为true则X轴为limit的最小值
     private Boolean fitMinLimit = false;
+    // 是否使用贝塞尔平滑曲线
+    private Boolean isCubic = false;
 
     private int[] colorArray = {
             Color.parseColor("#e74c3c"), Color.parseColor("#2980b9"), Color.parseColor("#1abc9c")
@@ -124,6 +129,12 @@ public class LineChartView extends View {
 
     public LineChartView(Context context, AttributeSet attrs) {
         super(context, attrs);
+
+        linePaint = new Paint();
+        linePaint.setStyle(Paint.Style.STROKE);
+        linePaint.setAntiAlias(true);
+        linePaint.setStrokeWidth(MyUtils.dip2px(getContext(), 2));
+        linePaint.setColor(Color.RED);
 
         popupTextPaint.setAntiAlias(true);
         popupTextPaint.setColor(Color.WHITE);
@@ -300,8 +311,10 @@ public class LineChartView extends View {
         if (limitList != null && limitList.size()>0) {
             for (int i=0; i<limitList.size(); i++) {
                 float limitY = getYAxesOf(limitList.get(i).yValue, getVerticalGridNum());
-                limitPaint.setColor(limitList.get(i).color);
-                canvas.drawLine(0, limitY, parentWidth, limitY, limitPaint);
+                if (limitList.get(i).isShowLine){
+                    limitPaint.setColor(limitList.get(i).color);
+                    canvas.drawLine(0, limitY, parentWidth, limitY, limitPaint);
+                }
 
                 Rect rect = new Rect();
                 limitPaint.getTextBounds(limitList.get(i).desc, 0, limitList.get(i).desc.length(), rect);
@@ -311,17 +324,128 @@ public class LineChartView extends View {
     }
 
     private void drawLines(Canvas canvas) {
-        Paint linePaint = new Paint();
-        linePaint.setAntiAlias(true);
-        linePaint.setStrokeWidth(MyUtils.dip2px(getContext(), 2));
         for (int k = 0; k < drawDotLists.size(); k++) {
             linePaint.setColor(colorArray[k % colorArray.length]);
-            for (int i = 0; i < drawDotLists.get(k).size() - 1; i++) {
-                canvas.drawLine(drawDotLists.get(k).get(i).x, drawDotLists.get(k).get(i).y,
-                        drawDotLists.get(k).get(i + 1).x, drawDotLists.get(k).get(i + 1).y,
-                        linePaint);
+
+            if (isCubic) {
+                drawLineBySmooth(canvas, drawDotLists.get(k));
+            }else {
+                for (int i = 0; i < drawDotLists.get(k).size() - 1; i++) {
+                    canvas.drawLine(drawDotLists.get(k).get(i).x, drawDotLists.get(k).get(i).y,
+                            drawDotLists.get(k).get(i + 1).x, drawDotLists.get(k).get(i + 1).y,
+                            linePaint);
+                }
             }
         }
+    }
+
+    private void drawLineBySmooth(Canvas canvas, ArrayList<Dot> dots){
+        final int lineSize = dots.size();
+        float prePreviousPointX = Float.NaN;
+        float prePreviousPointY = Float.NaN;
+        float previousPointX = Float.NaN;
+        float previousPointY = Float.NaN;
+        float currentPointX = Float.NaN;
+        float currentPointY = Float.NaN;
+        float nextPointX = Float.NaN;
+        float nextPointY = Float.NaN;
+
+        Path path = new Path();
+        /*for (int i=0; i<lineSize; i++) {
+            Dot dot = dots.get(i);
+            if (i == 0) {
+                path.moveTo(dot.x, dot.y);
+            }else {
+                path.lineTo(dot.x, dot.y);
+            }
+
+            if (i == lineSize-1){
+                canvas.drawPath(path, linePaint);
+                path.reset();
+            } else if (i%10 == 0) {
+                canvas.drawPath(path, linePaint);
+                path.reset();
+                path.moveTo(dot.x, dot.y);
+            }
+        }*/
+
+        for (int valueIndex = 0; valueIndex < lineSize; ++valueIndex) {
+            if (Float.isNaN(currentPointX)) {
+                Dot linePoint = dots.get(valueIndex);
+                currentPointX = linePoint.x;
+                currentPointY = linePoint.y;
+            }
+            if (Float.isNaN(previousPointX)) {
+                if (valueIndex > 0) {
+                    Dot linePoint = dots.get(valueIndex - 1);
+                    previousPointX = linePoint.x;
+                    previousPointY = linePoint.y;
+                } else {
+                    previousPointX = currentPointX;
+                    previousPointY = currentPointY;
+                }
+            }
+
+            if (Float.isNaN(prePreviousPointX)) {
+                if (valueIndex > 1) {
+                    Dot linePoint = dots.get(valueIndex - 2);
+                    prePreviousPointX = linePoint.x;
+                    prePreviousPointY = linePoint.y;
+                } else {
+                    prePreviousPointX = previousPointX;
+                    prePreviousPointY = previousPointY;
+                }
+            }
+
+            // nextPoint is always new one or it is equal currentPoint.
+            if (valueIndex < lineSize - 1) {
+                Dot linePoint = dots.get(valueIndex + 1);
+                nextPointX = linePoint.x;
+                nextPointY = linePoint.y;
+            } else {
+                nextPointX = currentPointX;
+                nextPointY = currentPointY;
+            }
+
+            if (valueIndex == 0) {
+                // Move to start point.
+                path.moveTo(currentPointX, currentPointY);
+            } else {
+                // Calculate control points.
+                final float firstDiffX = (currentPointX - prePreviousPointX);
+                final float firstDiffY = (currentPointY - prePreviousPointY);
+                final float secondDiffX = (nextPointX - previousPointX);
+                final float secondDiffY = (nextPointY - previousPointY);
+                final float firstControlPointX = previousPointX + (LINE_SMOOTHNESS * firstDiffX);
+                final float firstControlPointY = previousPointY + (LINE_SMOOTHNESS * firstDiffY);
+                final float secondControlPointX = currentPointX - (LINE_SMOOTHNESS * secondDiffX);
+                final float secondControlPointY = currentPointY - (LINE_SMOOTHNESS * secondDiffY);
+                path.cubicTo(firstControlPointX, firstControlPointY, secondControlPointX, secondControlPointY,
+                        currentPointX, currentPointY);
+            }
+
+            // 分多个path绘制，解决path连接太多点不显示的问题
+            if (valueIndex == lineSize-1){
+                canvas.drawPath(path, linePaint);
+                path.reset();
+            } else if (valueIndex%10 == 0) {
+                canvas.drawPath(path, linePaint);
+                path.reset();
+                path.moveTo(currentPointX, currentPointY);
+            }
+
+            // Shift values by one back to prevent recalculation of values that have
+            // been already calculated.
+            prePreviousPointX = previousPointX;
+            prePreviousPointY = previousPointY;
+            previousPointX = currentPointX;
+            previousPointY = currentPointY;
+            currentPointX = nextPointX;
+            currentPointY = nextPointY;
+        }
+
+//        canvas.drawPath(path, linePaint);
+//        path.reset();
     }
 
     private void drawDots(Canvas canvas) {
@@ -695,5 +819,15 @@ public class LineChartView extends View {
 
     public void setFitMinLimit(Boolean fitMinLimit) {
         this.fitMinLimit = fitMinLimit;
+    }
+
+    // 设置一屏显示的坐标点个数
+    public void setMaxDotNum(int maxDotNum) {
+        this.maxDotNum = maxDotNum;
+    }
+
+    // 设置是否显示平滑曲线
+    public void setCubic(Boolean cubic) {
+        isCubic = cubic;
     }
 }

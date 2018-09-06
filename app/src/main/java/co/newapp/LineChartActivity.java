@@ -52,8 +52,14 @@ public class LineChartActivity extends AppCompatActivity {
 
         List<Limit> limits = new ArrayList<>();
         limits.add(new Limit(10, "10次/分", 0xFFFF0000));
+        // 是否显示limit线,false只显示文字
+        limits.add(new Limit(55, "55次/分", 0xFFFF0000, false));
         limits.add(new Limit(80, "60-100次/分", 0xFF00FF00));
         lineView.setLimitList(limits);
+        // 设置一屏显示的坐标点个数
+        lineView.setMaxDotNum(7);
+        // 设置是否开启平滑曲线
+        lineView.setCubic(true);
     }
 
     private void randomSet(LineChartView lineView) {

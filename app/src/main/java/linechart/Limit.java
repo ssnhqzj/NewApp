@@ -12,6 +12,7 @@ public class Limit implements Comparable<Limit>{
     public float yValue;
     public String desc;
     public int color;
+    public boolean isShowLine = true;
 
     public Limit() {}
 
@@ -24,6 +25,13 @@ public class Limit implements Comparable<Limit>{
         this.yValue = yValue;
         this.desc = desc;
         this.color = color;
+    }
+
+    public Limit(float yValue, String desc, int color, boolean isShowLine) {
+        this.yValue = yValue;
+        this.desc = desc;
+        this.color = color;
+        this.isShowLine = isShowLine;
     }
 
     @Override

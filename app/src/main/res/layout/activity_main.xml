@@ -53,6 +53,12 @@
             android:layout_height="wrap_content"
             android:text="折线图列表"/>
 
+        <Button
+            android:id="@+id/test"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="TEst"/>
+
     </LinearLayout>
 
 </ScrollView>

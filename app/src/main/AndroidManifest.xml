@@ -27,6 +27,7 @@
             android:windowSoftInputMode="adjustNothing"/>
         <activity android:name=".LineChartActivity" />
         <activity android:name=".LineChartListActivity" />
+        <activity android:name=".TestActivity" />
     </application>
 
 </manifest>
