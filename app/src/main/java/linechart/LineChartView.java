@@ -48,7 +48,7 @@ public class LineChartView extends View {
     private final int bottomLineLength = MyUtils.sp2px(getContext(), 0);
     private final int DOT_INNER_CIR_RADIUS = MyUtils.dip2px(getContext(), 3);
     private final int DOT_OUTER_CIR_RADIUS = MyUtils.dip2px(getContext(), 5);
-    private final int MIN_VERTICAL_GRID_NUM = 4;
+    private final int MIN_VERTICAL_GRID_NUM = 1;
     private final int MIN_HORIZONTAL_GRID_NUM = 1;
     private final int BACKGROUND_LINE_COLOR = Color.parseColor("#EEEEEE");
     private final int BOTTOM_TEXT_COLOR = Color.parseColor("#333333");
@@ -93,6 +93,7 @@ public class LineChartView extends View {
     private int backgroundGridWidth = MyUtils.dip2px(getContext(), 45);
     private int parentWidth;
     private int showPopupType = SHOW_POPUPS_NONE;
+    private float scale = 1f;
     private Boolean drawDotLine = false;
     // 是否适应最小limit值，若为true则X轴为limit的最小值
     private Boolean fitMinLimit = false;
@@ -763,6 +764,7 @@ public class LineChartView extends View {
                     }
                 }
             }
+
             dataOfAGird = 1;
             while (biggestData / 10 > dataOfAGird) {
                 dataOfAGird *= 10;
