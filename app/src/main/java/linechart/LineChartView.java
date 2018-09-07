@@ -523,7 +523,7 @@ public class LineChartView extends View {
 
         // 如果limit的最大值大于上边计算的值则设置成limit的最大值，保证设置的limit都能看见
         if (limitList != null && limitList.size()>0){
-            int limitMaxValue = (int) Math.floor(limitList.get(limitList.size()-1).yValue);
+            float limitMaxValue = limitList.get(limitList.size()-1).yValue;
             verticalGridNum = verticalGridNum<limitMaxValue?limitMaxValue:verticalGridNum;
         }
 
