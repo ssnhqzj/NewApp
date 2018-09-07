@@ -65,12 +65,12 @@ public class LineChartActivity extends AppCompatActivity {
         // 设置是否开启平滑曲线
         lineView.setCubic(true);
         lineView.setKeepDigits(2);
-        lineView.setFitMinLimit(false);
+        lineView.setFitMinLimit(true);
     }
 
     private void randomSet(LineChartView lineView) {
         List<Float> dataList = new ArrayList<>();
-        dataList.add(4f);
+        dataList.add(40f);
         dataList.add(32f);
         dataList.add(19f);
         dataList.add(23f);

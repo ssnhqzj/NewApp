@@ -754,7 +754,7 @@ public class LineChartView extends View {
         }
 
         float maxData = 0;
-        float minData = 0;
+        float minData = Float.MAX_VALUE;
         for (List<Float> list : dataLists) {
             for (Float i : list) {
                 if (maxData < i) {
