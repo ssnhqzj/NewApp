@@ -48,18 +48,17 @@ public class LineChartView extends View {
     private final int bottomLineLength = MyUtils.sp2px(getContext(), 0);
     private final int DOT_INNER_CIR_RADIUS = MyUtils.dip2px(getContext(), 3);
     private final int DOT_OUTER_CIR_RADIUS = MyUtils.dip2px(getContext(), 5);
-    private final int MIN_VERTICAL_GRID_NUM = 1;
-    private final int MIN_HORIZONTAL_GRID_NUM = 1;
-    private final int BACKGROUND_LINE_COLOR = Color.parseColor("#EEEEEE");
-    private final int BOTTOM_TEXT_COLOR = Color.parseColor("#333333");
+    private static final int MIN_VERTICAL_GRID_NUM = 0;
+    private static final int MIN_HORIZONTAL_GRID_NUM = 1;
+    private static final int BACKGROUND_LINE_COLOR = Color.parseColor("#EEEEEE");
+    private static final int BOTTOM_TEXT_COLOR = Color.parseColor("#333333");
     private final Point tmpPoint = new Point();
     private final Paint linePaint;
 
     private boolean showBackGrid = false;
     public boolean showPopup = true;
     private int mViewHeight;
-    private boolean autoSetDataOfGird = true;
-    private boolean autoSetGridWidth = true;
+    private static final boolean autoSetGridWidth = true;
     private boolean isSizeChanged = false;
     private int dataOfAGird = 10;
     private int bottomTextHeight = 0;
@@ -68,7 +67,7 @@ public class LineChartView extends View {
     private ArrayList<String> bottomTextList = new ArrayList<>();
     private List<List<Float>> dataLists = new ArrayList<>();
     private ArrayList<Integer> xCoordinateList = new ArrayList<>();
-    private ArrayList<Integer> yCoordinateList = new ArrayList<>();
+    private ArrayList<Float> yCoordinateList = new ArrayList<>();
     private ArrayList<ArrayList<Dot>> drawDotLists = new ArrayList<>();
     private Paint xAxisPaint = new Paint();
     private int xAxisColor = Color.parseColor("#EEEEEE");
@@ -93,7 +92,6 @@ public class LineChartView extends View {
     private int backgroundGridWidth = MyUtils.dip2px(getContext(), 45);
     private int parentWidth;
     private int showPopupType = SHOW_POPUPS_NONE;
-    private float scale = 1f;
     private Boolean drawDotLine = false;
     // 是否适应最小limit值，若为true则X轴为limit的最小值
     private Boolean fitMinLimit = false;
@@ -511,13 +509,13 @@ public class LineChartView extends View {
     /**
      * 获取Y轴方向的grid单元格个数
      */
-    private int getVerticalGridNum() {
-        int verticalGridNum = MIN_VERTICAL_GRID_NUM;
+    private float getVerticalGridNum() {
+        float verticalGridNum = MIN_VERTICAL_GRID_NUM;
         if (dataLists != null && !dataLists.isEmpty()) {
             for (List<Float> list : dataLists) {
                 for (Float f : list) {
-                    if (verticalGridNum < (f + 1)) {
-                        verticalGridNum = (int) Math.floor(f + 1);
+                    if (verticalGridNum < f) {
+                        verticalGridNum = f;
                     }
                 }
             }
@@ -556,7 +554,7 @@ public class LineChartView extends View {
     }
 
     private void refreshAfterDataChanged() {
-        int verticalGridNum = getVerticalGridNum();
+        float verticalGridNum = getVerticalGridNum();
         refreshYCoordinateList(verticalGridNum);
         refreshDrawDotList(verticalGridNum);
     }
@@ -571,7 +569,7 @@ public class LineChartView extends View {
         }
     }
 
-    private void refreshYCoordinateList(int verticalGridNum) {
+    private void refreshYCoordinateList(float verticalGridNum) {
         yCoordinateList.clear();
         for (int i = 0; i < (verticalGridNum + 1); i++) {
             yCoordinateList.add(topLineLength + ((mViewHeight
@@ -583,7 +581,7 @@ public class LineChartView extends View {
         }
     }
 
-    private void refreshDrawDotList(int verticalGridNum) {
+    private void refreshDrawDotList(float verticalGridNum) {
         if (dataLists != null && !dataLists.isEmpty()) {
             if (drawDotLists.size() == 0) {
                 for (int k = 0; k < dataLists.size(); k++) {
@@ -618,7 +616,7 @@ public class LineChartView extends View {
         post(animator);
     }
 
-    private float getYAxesOf(float value, int verticalGridNum) {
+    private float getYAxesOf(float value, float verticalGridNum) {
         float y = verticalGridNum - value;
         if (fitMinLimit && limitList != null && limitList.size()>0){
             float minLimitValue = limitList.get(0).yValue;
@@ -755,19 +753,30 @@ public class LineChartView extends View {
             }
         }
 
-        float biggestData = 0;
+        float maxData = 0;
+        float minData = 0;
         for (List<Float> list : dataLists) {
-            if (autoSetDataOfGird) {
-                for (Float i : list) {
-                    if (biggestData < i) {
-                        biggestData = i;
-                    }
+            for (Float i : list) {
+                if (maxData < i) {
+                    maxData = i;
+                }
+
+                if (minData > i) {
+                    minData = i;
                 }
             }
 
             dataOfAGird = 1;
-            while (biggestData / 10 > dataOfAGird) {
+            while (maxData / 10 > dataOfAGird) {
                 dataOfAGird *= 10;
+            }
+        }
+
+        // 避免比最小limit值小的数值X轴下方看不见
+        if (fitMinLimit && limitList != null && limitList.size()>0) {
+            Limit minLimit = limitList.get(0);
+            if (minLimit.yValue > minData) {
+                limitList.add(0, new Limit(minData, ""));
             }
         }
 

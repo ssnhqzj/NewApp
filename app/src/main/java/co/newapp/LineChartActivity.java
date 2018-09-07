@@ -51,7 +51,11 @@ public class LineChartActivity extends AppCompatActivity {
         lineView.setShowPopup(LineChartView.SHOW_POPUPS_All);
 
         List<Limit> limits = new ArrayList<>();
-        limits.add(new Limit(0.5f, "0.5", 0xFFFF0000, true));
+        limits.add(new Limit(10f, "0.1", 0xFFFF0000, true));
+        limits.add(new Limit(20f, "0.2", 0xFFFF0000, true));
+        limits.add(new Limit(30f, "0.3", 0xFFFF0000, true));
+        limits.add(new Limit(40f, "0.4", 0xFFFF0000, true));
+        limits.add(new Limit(50f, "0.5", 0xFFFF0000, true));
         // 是否显示limit线,false只显示文字
 //        limits.add(new Limit(55, "55次/分", 0xFFFF0000, false));
 //        limits.add(new Limit(80, "60-100次/分", 0xFF00FF00));
@@ -61,21 +65,18 @@ public class LineChartActivity extends AppCompatActivity {
         // 设置是否开启平滑曲线
         lineView.setCubic(true);
         lineView.setKeepDigits(2);
+        lineView.setFitMinLimit(false);
     }
 
     private void randomSet(LineChartView lineView) {
         List<Float> dataList = new ArrayList<>();
-        dataList.add(0.6f);
-        dataList.add(0.65f);
-        dataList.add(0.7f);
-        dataList.add(0.9f);
-        dataList.add(0.8f);
-        dataList.add(1f);
-        dataList.add(1.2f);
-        dataList.add(1.3f);
-        dataList.add(1.4f);
-        dataList.add(1.7f);
-        dataList.add(1.9f);
+        dataList.add(4f);
+        dataList.add(32f);
+        dataList.add(19f);
+        dataList.add(23f);
+        dataList.add(33f);
+        dataList.add(38f);
+        dataList.add(35f);
         /*float random = (float) (Math.random() * 100 + 1);
         for (int i = 0; i < randomInt; i++) {
             dataList.add((float) (Math.random() * random));
