@@ -24,6 +24,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
+import co.newapp.SizeUtils;
+
 /**
  * 类描述： 折线图
  * 创建人： QuZhiJie
@@ -44,7 +46,7 @@ public class LineChartView extends View {
     private final int minPopupWidth = MyUtils.dip2px(getContext(), 20);
     private final int popupTopPadding = MyUtils.dip2px(getContext(), 2);
     private final int popupBottomMargin = MyUtils.dip2px(getContext(), 5);
-    private final int bottomTextTopMargin = MyUtils.sp2px(getContext(), 10);
+    private final int bottomTextTopMargin = MyUtils.sp2px(getContext(), 15);
     private final int bottomLineLength = MyUtils.sp2px(getContext(), 0);
     private final int DOT_INNER_CIR_RADIUS = MyUtils.dip2px(getContext(), 3);
     private final int DOT_OUTER_CIR_RADIUS = MyUtils.dip2px(getContext(), 5);
@@ -97,6 +99,16 @@ public class LineChartView extends View {
     private Boolean fitMinLimit = false;
     // 是否使用贝塞尔平滑曲线
     private Boolean isCubic = false;
+    // 是否从尾部开始绘制
+    private boolean isDrawFromEnd =false;
+    // 最大临界值
+    private float maxLimitValue = Float.NaN;
+    // 最小临界值
+    private float minLimitValue = Float.NaN;
+    // 适配最大最小limit,是否将limit列表中的最大最小值设置成最大最小临界值
+    private boolean minMaxLimitAdapter = true;
+    private float virtualDiffValue;
+    private int overDotColor;
 
     private int[] colorArray = {
             Color.parseColor("#e74c3c"), Color.parseColor("#2980b9"), Color.parseColor("#1abc9c")
@@ -218,24 +230,20 @@ public class LineChartView extends View {
             float minValue = Collections.min(dataLists.get(k));
             for (Dot d : drawDotLists.get(k)) {
                 if (showPopupType == SHOW_POPUPS_All) {
-                    drawPopup(canvas, d.data, d.setupPoint(tmpPoint),
-                            colorArray[k % colorArray.length]);
+                    drawPopup(canvas, d.data, d.setupPoint(tmpPoint), d.color);
                 } else if (showPopupType == SHOW_POPUPS_MAX_MIN_ONLY) {
                     if (d.data == maxValue) {
-                        drawPopup(canvas, d.data, d.setupPoint(tmpPoint),
-                                colorArray[k % colorArray.length]);
+                        drawPopup(canvas, d.data, d.setupPoint(tmpPoint), d.color);
                     }
                     if (d.data == minValue) {
-                        drawPopup(canvas, d.data, d.setupPoint(tmpPoint),
-                                colorArray[k % colorArray.length]);
+                        drawPopup(canvas, d.data, d.setupPoint(tmpPoint), d.color);
                     }
                 }
             }
         }
 
         if (showPopup && selectedDot != null) {
-            drawPopup(canvas, selectedDot.data, selectedDot.setupPoint(tmpPoint),
-                    colorArray[selectedDot.linenumber % colorArray.length]);
+            drawPopup(canvas, selectedDot.data, selectedDot.setupPoint(tmpPoint), selectedDot.color);
         }
     }
 
@@ -281,8 +289,7 @@ public class LineChartView extends View {
         //draw bottom text
         if (bottomTextList != null) {
             for (int i = 0; i < bottomTextList.size(); i++) {
-                canvas.drawText(bottomTextList.get(i), sideLineLength + backgroundGridWidth * i,
-                        mViewHeight - bottomTextDescent, bottomTextPaint);
+                canvas.drawText(bottomTextList.get(i), getXAxisValue(i), mViewHeight - bottomTextDescent, bottomTextPaint);
             }
         }
 
@@ -294,6 +301,18 @@ public class LineChartView extends View {
                 }
             }
         }
+    }
+
+    // 计算对应下标的X轴坐标
+    private int getXAxisValue(int index){
+        int x;
+        if (isDrawFromEnd) {
+            x = getMeasuredWidth()-sideLineLength - backgroundGridWidth * index;
+        }else {
+            x = sideLineLength + backgroundGridWidth * index;
+        }
+
+        return x;
     }
 
     /**
@@ -350,24 +369,6 @@ public class LineChartView extends View {
         float nextPointY = Float.NaN;
 
         Path path = new Path();
-        /*for (int i=0; i<lineSize; i++) {
-            Dot dot = dots.get(i);
-            if (i == 0) {
-                path.moveTo(dot.x, dot.y);
-            }else {
-                path.lineTo(dot.x, dot.y);
-            }
-
-            if (i == lineSize-1){
-                canvas.drawPath(path, linePaint);
-                path.reset();
-            } else if (i%10 == 0) {
-                canvas.drawPath(path, linePaint);
-                path.reset();
-                path.moveTo(dot.x, dot.y);
-            }
-        }*/
-
         for (int valueIndex = 0; valueIndex < lineSize; ++valueIndex) {
             if (Float.isNaN(currentPointX)) {
                 Dot linePoint = dots.get(valueIndex);
@@ -442,20 +443,24 @@ public class LineChartView extends View {
             currentPointX = nextPointX;
             currentPointY = nextPointY;
         }
-
-//        canvas.drawPath(path, linePaint);
-//        path.reset();
     }
 
     private void drawDots(Canvas canvas) {
         Paint bigCirPaint = new Paint();
         bigCirPaint.setAntiAlias(true);
+        bigCirPaint.setStrokeWidth(MyUtils.dip2px(getContext(),1));
+        bigCirPaint.setStyle(Paint.Style.FILL_AND_STROKE);
         Paint smallCirPaint = new Paint(bigCirPaint);
         smallCirPaint.setColor(Color.parseColor("#FFFFFF"));
         if (drawDotLists != null && !drawDotLists.isEmpty()) {
             for (int k = 0; k < drawDotLists.size(); k++) {
-                bigCirPaint.setColor(colorArray[k % colorArray.length]);
+                //bigCirPaint.setColor(colorArray[k % colorArray.length]);
                 for (Dot dot : drawDotLists.get(k)) {
+                    bigCirPaint.setColor(dot.color);
+
+                    /*PathEffect dashPathEffect = new DashPathEffect(new float[]{5,2},0);
+                    bigCirPaint.setPathEffect(dashPathEffect);*/
+
                     canvas.drawCircle(dot.x, dot.y, DOT_OUTER_CIR_RADIUS, bigCirPaint);
                     canvas.drawCircle(dot.x, dot.y, DOT_INNER_CIR_RADIUS, smallCirPaint);
                 }
@@ -527,9 +532,16 @@ public class LineChartView extends View {
             verticalGridNum = verticalGridNum<limitMaxValue?limitMaxValue:verticalGridNum;
         }
 
-        if (fitMinLimit && limitList != null && limitList.size()>0){
-            float minLimitValue = limitList.get(0).yValue;
-            verticalGridNum -= minLimitValue;
+        if (!Float.isNaN(maxLimitValue) && verticalGridNum > maxLimitValue) {
+            verticalGridNum = maxLimitValue + virtualDiffValue;
+        }
+
+        /*if (!Float.isNaN(minLimitValue)) {
+            verticalGridNum += virtualDiffValue;
+        }*/
+
+        if (fitMinLimit && limitList != null && limitList.size()>1){
+            verticalGridNum -= limitList.get(0).yValue;
         }
 
         return verticalGridNum;
@@ -565,7 +577,7 @@ public class LineChartView extends View {
     private void refreshXCoordinateList(int horizontalGridNum) {
         xCoordinateList.clear();
         for (int i = 0; i < (horizontalGridNum + 1); i++) {
-            xCoordinateList.add(sideLineLength + backgroundGridWidth * i);
+            xCoordinateList.add(getXAxisValue(i));
         }
     }
 
@@ -594,14 +606,25 @@ public class LineChartView extends View {
 
                 for (int i = 0; i < dataLists.get(k).size(); i++) {
                     int x = xCoordinateList.get(i);
-                    float y = getYAxesOf(dataLists.get(k).get(i), verticalGridNum);
+                    float yValue = dataLists.get(k).get(i);
+                    int color = 0;
+                    boolean isOverData = false;
+                    if (yValue < minLimitValue || yValue > maxLimitValue) {
+                        color = overDotColor==0?colorArray[k % colorArray.length]:overDotColor;
+                        isOverData = true;
+                    }else {
+                        color = colorArray[k % colorArray.length];
+                    }
+
+                    float y = getYAxesOf(yValue, verticalGridNum);
                     if (i > drawDotSize - 1) {
-                        drawDotLists.get(k).add(new Dot(getContext(), x, 0, x, y, dataLists.get(k).get(i), k));
+                        Dot dot = new Dot(getContext(), x, 0, x, y, dataLists.get(k).get(i), k);
+                        dot.color = color;
+                        dot.isOverData = isOverData;
+                        drawDotLists.get(k).add(dot);
                     } else {
-                        drawDotLists.get(k)
-                                .set(i, drawDotLists.get(k)
-                                        .get(i)
-                                        .setTargetData(x, y, dataLists.get(k).get(i), k));
+                        Dot dot = drawDotLists.get(k).set(i, drawDotLists.get(k).get(i).setTargetData(x, y, dataLists.get(k).get(i), k, color));
+                        dot.isOverData = isOverData;
                     }
                 }
 
@@ -617,10 +640,17 @@ public class LineChartView extends View {
     }
 
     private float getYAxesOf(float value, float verticalGridNum) {
-        float y = verticalGridNum - value;
-        if (fitMinLimit && limitList != null && limitList.size()>0){
-            float minLimitValue = limitList.get(0).yValue;
-            y += minLimitValue;
+        float y;
+        if (!Float.isNaN(maxLimitValue) && value > maxLimitValue) {
+            y = verticalGridNum - (maxLimitValue+virtualDiffValue);
+        }else if (!Float.isNaN(minLimitValue) && value < minLimitValue){
+            y = verticalGridNum - limitList.get(0).yValue;
+        } else {
+            y = verticalGridNum - value;
+        }
+
+        if (fitMinLimit && limitList != null && limitList.size()>1){
+            y += limitList.get(0).yValue;
         }
 
         return topLineLength + ((mViewHeight
@@ -628,7 +658,7 @@ public class LineChartView extends View {
                 - bottomTextHeight
                 - bottomTextTopMargin
                 - bottomLineLength
-                - bottomTextDescent) * y / (getVerticalGridNum()));
+                - bottomTextDescent) * y / verticalGridNum);
     }
 
     private void refreshTopLineLength() {
@@ -753,16 +783,26 @@ public class LineChartView extends View {
             }
         }
 
+        virtualDiffValue = 0;
+        if (!Float.isNaN(maxLimitValue)){
+            if (!Float.isNaN(minLimitValue)){
+                virtualDiffValue = (maxLimitValue - minLimitValue)/4f;
+            }else {
+                virtualDiffValue = maxLimitValue/4f;
+            }
+        }
+
         float maxData = 0;
         float minData = Float.MAX_VALUE;
         for (List<Float> list : dataLists) {
-            for (Float i : list) {
-                if (maxData < i) {
-                    maxData = i;
+            for (int i=0; i<list.size(); i++) {
+                Float data = list.get(i);
+                if (maxData < data) {
+                    maxData = data;
                 }
 
-                if (minData > i) {
-                    minData = i;
+                if (minData > data) {
+                    minData = data;
                 }
             }
 
@@ -774,9 +814,8 @@ public class LineChartView extends View {
 
         // 避免比最小limit值小的数值X轴下方看不见
         if (fitMinLimit && limitList != null && limitList.size()>0) {
-            Limit minLimit = limitList.get(0);
-            if (minLimit.yValue > minData) {
-                limitList.add(0, new Limit(minData, ""));
+            if (minLimitValue > minData) {
+                limitList.add(0, new Limit(minLimitValue-virtualDiffValue, "", 0, false));
             }
         }
 
@@ -815,6 +854,19 @@ public class LineChartView extends View {
         if (limitList != null && limitList.size()>0) {
             this.limitList.addAll(limitList);
             Collections.sort(this.limitList);
+
+            if (minMaxLimitAdapter) {
+                if (Float.isNaN(maxLimitValue)){
+                    maxLimitValue = this.limitList.get(this.limitList.size()-1).yValue;
+                }
+
+                // 如果只设置了一个临界值则把该临界值当成最大临界值
+                if (Float.isNaN(minLimitValue) && limitList.size()>1){
+                    minLimitValue = this.limitList.get(0).yValue;
+                }else {
+                    minLimitValue = 0;
+                }
+            }
         }
     }
 
@@ -840,5 +892,22 @@ public class LineChartView extends View {
     // 设置是否显示平滑曲线
     public void setCubic(Boolean cubic) {
         isCubic = cubic;
+    }
+
+    // 设置是否从尾部开始
+    public void setDrawFromEnd(boolean drawFromEnd) {
+        isDrawFromEnd = drawFromEnd;
+    }
+
+    public void setMaxLimitValue(float maxLimitValue) {
+        this.maxLimitValue = maxLimitValue;
+    }
+
+    public void setMinLimitValue(float minLimitValue) {
+        this.minLimitValue = minLimitValue;
+    }
+
+    public void setOverDotColor(int overDotColor) {
+        this.overDotColor = overDotColor;
     }
 }

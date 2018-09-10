@@ -10,20 +10,22 @@ import android.graphics.Point;
  * 版权： 成都智慧一生约科技有限公司
  */
 public class Dot {
-    int x;
-    float y;
-    float data;
-    int targetX;
-    float targetY;
-    int linenumber;
-    int velocity;
+    public int x;
+    public float y;
+    public float data;
+    public int targetX;
+    public float targetY;
+    public int linenumber;
+    public int velocity;
+    public int color = 0;
+    public boolean isOverData = false;
 
     Dot(Context context, int x, float y, int targetX, float targetY, float data, int linenumber) {
         this.x = x;
         this.y = y;
         this.linenumber = linenumber;
         velocity = MyUtils.dip2px(context, 18);
-        setTargetData(targetX, targetY, data, linenumber);
+        setTargetData(targetX, targetY, data, linenumber, 0);
     }
 
     Point setupPoint(Point point) {
@@ -31,11 +33,12 @@ public class Dot {
         return point;
     }
 
-    Dot setTargetData(int targetX, float targetY, float data, int linenumber) {
+    Dot setTargetData(int targetX, float targetY, float data, int linenumber, int color) {
         this.targetX = targetX;
         this.targetY = targetY;
         this.data = data;
         this.linenumber = linenumber;
+        this.color = color;
         return this;
     }
 

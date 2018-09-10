@@ -51,11 +51,12 @@ public class LineChartActivity extends AppCompatActivity {
         lineView.setShowPopup(LineChartView.SHOW_POPUPS_All);
 
         List<Limit> limits = new ArrayList<>();
-        limits.add(new Limit(1f, "0.1", 0xFFFF0000, true));
-        limits.add(new Limit(2f, "0.2", 0xFFFF0000, true));
-        limits.add(new Limit(3f, "0.3", 0xFFFF0000, true));
-        limits.add(new Limit(4f, "0.4", 0xFFFF0000, true));
-        limits.add(new Limit(5f, "0.5", 0xFFFF0000, true));
+//        limits.add(new Limit(1f, "1", 0xFFFF0000, true));
+        limits.add(new Limit(35.5f, "2", 0xFFFF0000, true));
+        limits.add(new Limit(36f, "3", 0xFFFF0000, true));
+        limits.add(new Limit(36.5f, "4", 0xFFFF0000, true));
+        limits.add(new Limit(37f, "5", 0xFFFF0000, true));
+        limits.add(new Limit(37.5f, "5", 0xFFFF0000, true));
         // 是否显示limit线,false只显示文字
 //        limits.add(new Limit(55, "55次/分", 0xFFFF0000, false));
 //        limits.add(new Limit(80, "60-100次/分", 0xFF00FF00));
@@ -66,17 +67,28 @@ public class LineChartActivity extends AppCompatActivity {
         lineView.setCubic(true);
         lineView.setKeepDigits(2);
         lineView.setFitMinLimit(true);
+        // 是否从右侧开始绘制
+        lineView.setDrawFromEnd(true);
+        // 设置超出坨坨的颜色
+        lineView.setOverDotColor(0xFF0000FF);
     }
 
     private void randomSet(LineChartView lineView) {
         List<Float> dataList = new ArrayList<>();
-        dataList.add(1.40f);
-        dataList.add(2.32f);
-        dataList.add(3.19f);
-        dataList.add(4.23f);
-        dataList.add(5.33f);
-        dataList.add(6.38f);
-        dataList.add(7.55f);
+        dataList.add(85.6f);
+        dataList.add(36.2f);
+        dataList.add(36.0f);
+        dataList.add(35.9f);
+//        dataList.add(-2.23f);
+//        dataList.add(-9.23f);
+        dataList.add(35.7f);
+        dataList.add(36.9f);
+        dataList.add(16.1f);
+        dataList.add(36.9f);
+        dataList.add(16.1f);
+//        dataList.add(5.33f);
+//        dataList.add(6.38f);
+//        dataList.add(7.55f);
         /*float random = (float) (Math.random() * 100 + 1);
         for (int i = 0; i < randomInt; i++) {
             dataList.add((float) (Math.random() * random));
