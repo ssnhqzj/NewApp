@@ -7,23 +7,33 @@
     android:background="#EEEEF0"
     android:orientation="vertical">
 
-   <TextView
-       android:id="@+id/text_view"
-       android:layout_width="match_parent"
-       android:layout_height="wrap_content"/>
-
-   <TextView
-       android:id="@+id/text_view1"
-       android:layout_width="match_parent"
-       android:layout_height="wrap_content"
-       android:layout_marginTop="20dp"/>
-
-    <ImageView
+    <TextView
+        android:id="@+id/text_view"
         android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/text_view1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+   <co.newapp.BackgroundTransparentLayout
+       android:layout_width="200dp"
+       android:layout_height="200dp"
+       app:radius="60dp">
+
+       <ImageView
+           android:layout_width="200dp"
+           android:layout_height="200dp"
+           android:src="#FF000000"/>
+
+   </co.newapp.BackgroundTransparentLayout>
+
+    <TextClock
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:scaleType="fitXY"
-        android:adjustViewBounds="true"
-        android:src="@mipmap/introduce_naiba_01"/>
+        android:format24Hour="yyyy年MM月dd日 HH:mm:ss"
+        tools:targetApi="17"/>
 
 
 </LinearLayout>

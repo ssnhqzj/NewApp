@@ -6,6 +6,7 @@ import android.graphics.drawable.GradientDrawable;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -24,6 +25,7 @@ public class LineChartWrapperView extends LinearLayout {
     private TextView titleTV;
     private TextView subTitleTV;
     private LineChartView chartView;
+    private HorizontalScrollView horizontalScrollView;
 
     public LineChartWrapperView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -32,6 +34,20 @@ public class LineChartWrapperView extends LinearLayout {
         titleTV = findViewById(R.id.line_chart_wrapper_title_txt);
         subTitleTV = findViewById(R.id.line_chart_wrapper_sub_title);
         chartView = findViewById(R.id.line_chart_wrapper_chart);
+        horizontalScrollView = findViewById(R.id.line_chart_wrapper_scroll);
+    }
+
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        if (chartView.getDrawFromEnd()){
+            horizontalScrollView.post(new Runnable() {
+                @Override
+                public void run() {
+                    horizontalScrollView.scrollTo(chartView.getMeasuredWidth(),0);
+                }
+            });
+        }
     }
 
     private Drawable getTitleLeftDrawable(int color){

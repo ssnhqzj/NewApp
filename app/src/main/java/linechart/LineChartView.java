@@ -47,6 +47,7 @@ public class LineChartView extends View {
     private final int popupTopPadding = MyUtils.dip2px(getContext(), 2);
     private final int popupBottomMargin = MyUtils.dip2px(getContext(), 5);
     private final int bottomTextTopMargin = MyUtils.sp2px(getContext(), 15);
+    // X坐标轴和图表之间的间距
     private final int bottomLineLength = MyUtils.sp2px(getContext(), 0);
     private final int DOT_INNER_CIR_RADIUS = MyUtils.dip2px(getContext(), 3);
     private final int DOT_OUTER_CIR_RADIUS = MyUtils.dip2px(getContext(), 5);
@@ -897,6 +898,10 @@ public class LineChartView extends View {
     // 设置是否从尾部开始
     public void setDrawFromEnd(boolean drawFromEnd) {
         isDrawFromEnd = drawFromEnd;
+    }
+
+    public boolean getDrawFromEnd() {
+        return isDrawFromEnd;
     }
 
     public void setMaxLimitValue(float maxLimitValue) {

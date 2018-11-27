@@ -9,4 +9,10 @@
     <color name="txt2">#9C27B0</color>
     <color name="txt3">#2196F3</color>
     <color name="txt4">#009688</color>
+
+    <color name="color507DFF">#507DFF</color>
+    <color name="color70blue">#B2507DFF</color>
+    <color name="color50blue">#7F507DFF</color>
+    <color name="color30blue">#4C507DFF</color>
+    <color name="color10blue">#19507DFF</color>
 </resources>

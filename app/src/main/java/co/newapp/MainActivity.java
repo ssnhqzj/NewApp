@@ -65,5 +65,12 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, TestActivity.class));
             }
         });
+
+        findViewById(R.id.send_notification).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                NotificationUtil.sendNotification(MainActivity.this,"通知消息", "标题", "这是通知内容", "哈哈哈哈", TestActivity.class);
+            }
+        });
     }
 }

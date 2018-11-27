@@ -34,8 +34,8 @@ public class TestActivity extends AppCompatActivity {
         TextView textView = findViewById(R.id.text_view);
         TextView textView1 = findViewById(R.id.text_view1);
 
-        textView.append("屏幕宽度："+ScreenUtils.getScreenWidth()+"\n");
-        textView.append("屏幕高度："+ScreenUtils.getScreenHeight()+"\n");
+        textView.append("屏幕宽度："+ScreenUtils.getScreenWidth()+"\n; dp:"+SizeUtils.px2dp(this,ScreenUtils.getScreenWidth()));
+        textView.append("屏幕高度："+ScreenUtils.getScreenHeight()+"\n; dp:"+SizeUtils.px2dp(this,ScreenUtils.getScreenHeight()));
         textView.append("屏幕Density："+getDensity()+"\n");
         textView.append("屏幕dpi："+getDensity()*160+"\n");
 
